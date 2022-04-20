@@ -1,0 +1,99 @@
+input[type=number] {
+  width: 3em;
+}
+
+#features{
+    padding: 50px 0;
+}
+
+p{
+    text-align: center;
+    font-size: 23px;
+}
+
+.feature-row{
+    width: 80%;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    margin-left:160px;
+    padding:0px 10px;
+}
+
+.feature-row table{
+    margin-left: 100px;
+}
+
+.feature-col{
+    flex-basis: 30%;
+    text-align: center;
+    display:  inline-block;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+.feature-col img{
+    width: 50%;
+}
+
+.feature-message span{
+    width: 100%;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    /*margin-left:160px;*/
+    /*padding:0px 10px;*/
+}
+.feature-col h4{
+    margin: 10px 0;
+    font-weight: 400;
+}
+
+.feature-btn, .offer-btn{
+    margin: 80px auto 0;
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.feature-btn .line{
+    text-align: left;
+    display: inline-block;
+    margin-left: 25px;
+}
+
+.feature-btn button{
+    margin-left: 75%;
+}
+
+#station{
+    text-align: center;
+}
+
+.sidenav{
+    height:100%;
+    width:160px;
+    position: fixed;
+    z-index:1;
+    top:0;
+    left:0;
+    background-color:#222;
+    overflow-x: :hidden;
+    padding-top:20px;
+}
+
+.sidenav a{
+    padding:6px 8px 6px 16px;
+    text-decoration: none;
+    font-size:25px;
+    color: #818181;
+    display:block;
+}
+
+.sidenav a:hover{
+    color: #f1f1f1;
+}

@@ -1,0 +1,28 @@
+{% extends "switches/base.html" %}
+{% block title %}
+    Timers
+{% endblock %}
+
+{% block content %}
+    <div class="feature-row">
+    {% for item in items %}
+        <form id="station_{{ item.id }}" method="POST">
+            {% csrf_token %}
+            <div class="feature-col">
+                <h2>Station {{ item.id }}</h2>
+                <!-- <label for="hours">Hrs:</label>
+                <input type="number" id="hours_{{ item.id }}" value="0" name="hours" min="0">
+                <label for="minutes">Mins:</label>
+                <input type="number" id="mins_{{ item.id }}" value="0" name="mins" min="0"><br> -->
+                <p data_hrs="0" data_mins="0" data_secs="0" id="data_{{ item.id }}"></p>
+                <button name="start" value="{{ item.id }}" onClick="save_form(this.id)" id="start_{{ item.id }}">Resume</button>
+                <button name="pause" value="{{ item.id }}" onClick="save_form(this.id)" id="pause_{{ item.id }}">Pause</button>
+                <button name="reset" value="{{ item.id }}" onClick="save_form(this.id)" id="reset_{{ item.id }}">Reset</button>
+                <button name="save" value="{{ item.id }}" onClick="save_form(this.id)" id="save_{{ item.id }}">Save</button><br><br>
+                <input type="text" id="name_{{ item.id }}" name="name" value="">
+            </div>
+        </form>
+        
+    {% endfor %}
+    </div>
+{% endblock %}

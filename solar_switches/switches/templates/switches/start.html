@@ -1,0 +1,68 @@
+{% extends "switches/base.html" %}
+{% block title %}
+    Start
+{% endblock %}
+
+{% block content %}
+    <form id="station" method="POST">
+        {% csrf_token %}
+        <label for="stations">Select a Station: </label>
+        <select name="station_no" id="station_no">
+            <option value="" selected disabled hidden>Choose here</option>
+            {% for item in items %}
+                <option value="{{ item.id }}">{{ item.id }}</option>
+            {% endfor %}
+        </select><br>
+        <label for="hours">Set Hours:</label>
+        <input type="number" id="hours" value="0" name="hours" min="0"><br>
+        <label for="minutes">Set Minutes:</label>
+        <input type="number" id="mins" value="0" name="mins"><br>
+        <label for="minutes">Input Name:</label>
+        <input type="text" id="name" name="name" value=""><br>
+        <button type="submit" onclick="start_form()" name="start" value="1">Start</button>
+    </form>
+
+    <script type="text/javascript">
+        function start_form() {
+            let form = document.getElementById("station");
+            form.addEventListener('submit', function start(event) { // 1
+                check = document.getElementById('name').value
+                let data = new FormData();
+
+                if (!(document.getElementById('station_no').value.trim().length)) {
+                    alert("No User has been set!")
+                    event.preventDefault();
+                } else if (!(Number(document.getElementById('hours').value) || Number(document.getElementById('mins').value))) {
+                    alert("Please select a time!")
+                    event.preventDefault();
+                } else if  (!(document.getElementById('name').value.trim().length)){
+                    alert("Please select a station!")
+                    event.preventDefault();
+                } else if ('{{ names }}'.includes(check)) {
+                    alert("The current name already exists!")
+                    event.preventDefault();
+                }
+
+                // console.log('{{ names }}')
+                
+                
+                
+                // else {
+                //     data.append("hours", document.getElementById('hours').value)  
+                //     data.append("mins", document.getElementById('mins').value)
+                //     data.append("name", document.getElementById('name').value)
+                //     data.append("station_no", document.getElementById('station_no').value)
+                //     data.append("csrfmiddlewaretoken", '{{csrf_token}}')
+                //     axios.post('/', data)
+                //     location.reload();
+                //     // countdown_start(element)
+                // }
+                
+            })
+            // form.removeEventListener('submit', start)
+        }
+            
+    </script>
+{% endblock %}
+
+        

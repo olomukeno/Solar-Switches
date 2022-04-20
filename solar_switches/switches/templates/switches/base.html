@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+    <head>
+        <title>
+            {% block title %}
+            {% endblock %}
+        </title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="{% static 'countdown.css' %}">
+        <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    </head>
+    <body id="features" onload="load()">
+
+        <!-- <nav id="sideNav">
+        <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Offers</a></li>
+            <li><a href="#">History</a></li>
+            <li><a href="#">Others</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+    </nav> -->
+    <!-- <img src="images/menu.png" id="menubtn"> -->
+        {% if messages %}
+            <div role="alert" class="alert messages feature-message">
+                {% for message in messages %}
+                    <span {% if message.tags %} class="alert {{ message.tags }}"{% endif %}>{{ message }}</span>
+                    <!-- <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    </button>
+                    {{ message }} -->
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="sidenav">
+            <a href="/start">Start</a>
+            <a href="/">Timers</a>
+            <a href="/saves">Saved</a>
+            <a href="/logs">Recent Logs</a>
+        </div>
+        {% block content %}
+        {% endblock %}
+    </body>
+    <script>
+        // ALSO AS REGARDS SOME EXTRA VARIABLES PRESENT IN SOME OF THE FUNCTIONS, THEY ARENT USED EITHER
+        var station = [];
+
+        function load() {
+            // let i = 1;
+            {% for item in items %}
+                var doc = document.getElementById("data_" + '{{ item.id }}');
+                if ('{{ item.state }}' == 'start') {
+                    document.getElementById("name_" + '{{ item.id }}').value = '{{ item.name }}';
+                    let end = new Date('{{ item.time_to_end|date:"Y-m-d H:i:s" }}').getTime();
+                    let now = new Date().getTime();
+                    let time = end - now;
+                    // console.log('{{ item.time_to_end }}')
+                    doc.data_hrs = Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    doc.data_mins = Math.floor((time % (1000 * 60 * 60)) / (1000 * 60));
+                    doc.data_secs = Math.floor((time % (1000 * 60)) / 1000);
+                    // console.log("h:" + doc.data_hrs + ' m:' + doc.data_mins + ' s:' + doc.data_secs)
+                    // console.log("start_" + i)
+                    countdown_start("start_" + '{{ item.id }}');
+                } else if ('{{ item.state }}' == 'pause') {
+                    let time = '{{ item.pause_time }}'.split(':');
+                    doc.innerHTML = "Time Left: " + time[0] + "h " + time[1] + "m " + time[2].slice(0, 2) + "s";
+                    doc.data_hrs = time[0];
+                    doc.data_mins = time[1];
+                    doc.data_secs = time[2].slice(0, 2);
+                    document.getElementById("name_" + '{{ item.id }}').value = '{{ item.name }}';
+                } else if ('{{ item.state }}' == 'reset') {
+                    doc.innerHTML = "READY TO TIME!"
+                }
+                // i++;
+            {% endfor %}
+        }
+        
+        function countdown_start(element) {
+            start_id = element.split("_")[1];
+            // Fetch the display element
+            let el = document.getElementById("data_" + start_id);
+            var hours = el.data_hrs;
+            var minutes = el.data_mins;
+            var seconds = el.data_secs;
+
+            // if (el.data_mins || el.data_hrs || el.data_secs) {
+            //     hours = el.data_hrs;
+            //     minutes = el.data_mins;
+            //     seconds = el.data_secs;
+            // } else {
+            //     hours = document.getElementById("hours_" + start_id).value;
+            //     minutes = document.getElementById("mins_" + start_id).value;
+            //     seconds = 0;
+            // }
+            // document.getElementById("hours_" + start_id).value = 0;
+            // document.getElementById("mins_" + start_id).value = 0;
+
+            // Set the timer
+            station[start_id] = setInterval(function() {
+                // station[start_id] = interval;
+                // console.log(interval)
+                if(seconds == 0) {
+                    if(minutes == 0) {
+                        if(hours == 0) {
+                            document.getElementById("reset_" + start_id).click();
+                        } else {
+                            hours--;
+                            minutes = 59;
+                            seconds = 60;
+                          }
+                    } else {
+                        minutes--;
+                        seconds = 60;
+                    }      
+                }
+                // console.log("start_id" + start_id)
+                // console.log("interval" + station[start_id])
+                seconds--;
+                el.innerHTML = "Time Left: " + hours + "h " + minutes + "m " + seconds + "s";
+            }, 1000);
+        }
+
+        // THIS FUNCTION IS NO LONGER NEEDED
+        function countdown_pause(element) {
+            pause_id = element.split("_")[1];
+            time_left = document.getElementById("data_" + pause_id);
+            let x = time_left.innerHTML.split(' ');
+            time_left.data_hrs = Number(x[2].split('h')[0]);
+            time_left.data_mins = Number(x[3].split('m')[0]);
+            time_left.data_secs = Number(x[4].split('s')[0]);
+            clearInterval(station[pause_id]);
+            // console.log("pause_id" + pause_id)
+            // console.log("interval" + station[pause_id])
+        }
+
+        function countdown_reset(element) {
+            reset_id = element.split("_")[1];
+            timer = document.getElementById("data_" + reset_id);
+            document.getElementById("name_" + reset_id).value = '';
+            timer.innerHTML = "READY TO TIME!";     
+            timer.data_hrs = 0;
+            timer.data_mins = 0;
+            timer.data_secs = 0;
+            clearInterval(station[reset_id]);
+            // console.log("reset_id" + reset_id)
+            // console.log("interval" + station[reset_id])
+        }
+
+        // DIDNT WORK PROPERLY
+        function save_form(element) {
+            save_id = element.split("_")[1];
+            // console.log(element)
+            let form = document.getElementById("station_" + save_id);
+            form.addEventListener('click', start)
+            function start(event) { // 1
+                event.preventDefault();
+                
+                let data = new FormData();
+
+                if (element.split("_")[0] == 'start') {
+                    if (document.getElementById('name_' + save_id).value.trim().length) {
+                        // data.append("hours", document.getElementById('hours_' + save_id).value) 
+                        // data.append("mins", document.getElementById('mins_' + save_id).value)
+                        // data.append("name", document.getElementById('name_' + save_id).value)
+                        data.append(element.split("_")[0], document.getElementById(element).value)
+                        data.append("csrfmiddlewaretoken", '{{csrf_token}}')
+                        axios.post('/', data)
+                        countdown_start(element)
+                    }
+                    // else {
+                    //     alert("Station " + save_id + " has no user!")
+                    // }
+                    form.removeEventListener('click', start)
+
+                } if (element.split("_")[0] == 'pause') {
+                    data.append(element.split("_")[0], document.getElementById(element).value)
+                    data.append("csrfmiddlewaretoken", '{{csrf_token}}')
+                    axios.post('/', data) 
+                    countdown_pause(element)
+                    form.removeEventListener('click', start)
+                    
+                } if (element.split("_")[0] == 'reset') {
+                    // console.log('hi')
+                    data.append(element.split("_")[0], document.getElementById(element).value)
+                    data.append("csrfmiddlewaretoken", '{{csrf_token}}')
+                    axios.post('/', data) 
+                    countdown_reset(element)
+                    form.removeEventListener('click', start)
+
+                } if (element.split("_")[0] == 'save') {
+                    data.append(element.split("_")[0], document.getElementById(element).value)
+                    data.append("csrfmiddlewaretoken", '{{csrf_token}}')
+                    axios.post('/', data)
+                    form.removeEventListener('click', start)
+                    countdown_reset(element)
+                }
+            }
+        }
+    </script>
+    <script text="javascript">
+        setTimeout(fade_out, 3000);
+        function fade_out() {
+            $(".messages").fadeOut().empty();
+        }
+        // $(".post-form")[0].reset(); // this is to reset the form 
+</script>
+</html>

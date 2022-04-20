@@ -1,0 +1,40 @@
+{% extends "switches/base.html" %}
+{% block title %}
+    Recent Logs
+{% endblock %}
+
+{% block content %}
+    {% if items|length != 0 %}
+        <div class="feature-row">
+            <table class="table table-bordered center">
+                <colgroup>
+                        <col style="width: 15%;">
+                </colgroup>
+                <thead class="thead-dark">
+                    <tr style="background-color:#ccc;">
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        <form method="POST">
+                            {% csrf_token %}
+                                <tr>
+                                    <td>{{ item.log_date }}</td>
+                                    <td>{{ item.log }}</td>
+                                    <!-- <td>
+                                        <input type="submit" name="load" type="submit" value="Load" class="btn btn-secondary">
+                                        <input type="submit" name="delete" type="submit" value="Delete" class="btn btn-danger">
+                                        <input type="hidden" name="value" value="{{ item.id }}">
+                                    </td> -->
+                                </tr>
+                        </form>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>There are no recent logs.</p>
+    {% endif %}
+{% endblock %}
