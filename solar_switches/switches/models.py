@@ -22,12 +22,17 @@ class Saves(models.Model):
         return f'{self.pk}. Station No.: {self.station_no}, Time left: {self.time_left}, User: {self.name}'
 
 
-class Time(models.Model):
-    login_date = models.DateField(auto_now_add=True)
-    total_time = models.CharField(null=True, max_length=50)
+# class Time(models.Model):
+#     login_date = models.DateField(auto_now_add=True)
+#     total_time = models.CharField(null=True, max_length=50)
+
+
+# class Logs(models.Model):
+#     log_date = models.ForeignKey(Time, on_delete=models.CASCADE)
+#     log = models.TextField()
 
 
 class Logs(models.Model):
-    log_date = models.ForeignKey(Time, on_delete=models.CASCADE)
+    log_date = models.DateField(auto_now_add=True)
     log = models.TextField()
 

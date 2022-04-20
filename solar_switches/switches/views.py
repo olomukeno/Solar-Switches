@@ -46,9 +46,13 @@ def home(request):
             obj = Switches.objects.get(id=int(request.POST.get('pause')))
             if obj.time_to_end is not None:
                 obj.pause_time = obj.time_to_end - datetime.now()
+                para = str(obj.pause_time).split(':')
+                x = Logs.objects.create(log=f"Station {obj.id} paused with {para[0]} hour(s), {para[1]} minutes and "
+                                            f"{para[2][2]} seconds left")
+                x.save()
             obj.state = 'pause'
             obj.time_to_end = None
-            print(obj.pause_time)
+            # print(obj.pause_time)
             obj.save()
             # x = Logs.objects.create(log_date=date.today(), log=f'Station {obj.id} paused for {obj.name}')
             # x.save()
@@ -57,8 +61,8 @@ def home(request):
             # toggle switch off
         elif request.POST.get('reset'):
             obj = Switches.objects.get(id=int(request.POST.get('reset')))
-            # x = Logs.objects.create(log_date=date.today(), log=f'Station {obj.id} reset for {obj.name}')
-            # x.save()
+            x = Logs.objects.create(log=f'Station {obj.id} reset for {obj.name}')
+            x.save()
             obj.state = 'reset'
             obj.pause_time = None
             obj.time_to_end = None
@@ -79,8 +83,8 @@ def home(request):
                 pause_time = obj.time_to_end - datetime.now()
                 p = Saves.objects.create(name=obj.name, time_left=pause_time, station_no=obj.id)
                 p.save()
-            # x = Logs.objects.create(log_date=date.today(), log=f'Station {obj.id} saved for {obj.name}')
-            # x.save()
+            x = Logs.objects.create(log=f'Instance of Station {obj.id} saved for {obj.name}')
+            x.save()
             time.sleep(1)
             obj.state = 'reset'
             obj.pause_time = None
@@ -114,7 +118,10 @@ def save(request):
                 obj.ttl = save_form.time_left
                 obj.save()
                 time.sleep(1)
+                x = Logs.objects.create(log=f'Saved Station {obj.id} loaded for {obj.name}')
+                x.save()
                 save_form.delete()
+
                 messages.success(request, 'Saved data loaded!')
             else:
                 messages.warning(request, f'Station {save_form.station_no} is in use!')
@@ -122,6 +129,8 @@ def save(request):
 
         elif request.POST.get('delete'):
             save_form = Saves.objects.get(id=int(request.POST.get('value')))
+            x = Logs.objects.create(log=f'Instance of Station {save_form.station_no} deleted for {save_form.name}')
+            x.save()
             save_form.delete()
             messages.info(request, 'Saved data deleted')
             return redirect('main-save')
@@ -129,57 +138,57 @@ def save(request):
     return render(request, 'switches/save.html', {'items': context})
 
 
-def logs(request):
-    global log_time
-
-    def test(val):
-        change = []
-        context_1 = Switches.objects.filter(state='start').values('time_to_end', 'ttl')
-        data = Switches.objects.filter(state='start').values('id')
-        context_2 = Switches.objects.filter(state='pause').values('pause_time', 'ttl')
-        # print(context_1)
-        for obj in context_1:
-            print(obj['time_to_end'])
-            change = [int(val.split(':')[0]), int(val.split(':')[1]), int(val.split(':')[2])]
-            x = str(obj['time_to_end'] - datetime.now())
-            y = str(timedelta(hours=int(obj['ttl'].split(':')[0]) - int(x.split(':')[0]),
-                              minutes=int(obj['ttl'].split(':')[1]) - int(x.split(':')[1]),
-                              seconds=int(obj['ttl'].split(':')[2][:2]) - int(x.split(':')[2][:2])))
-            change[0] += int(y.split(':')[0])
-            change[1] += int(y.split(':')[1])
-            change[2] += int(y.split(':')[2])
-
-        for obj in context_2:
-            change = [int(val.split(':')[0]), int(val.split(':')[1]), int(val.split(':')[2])]
-            # x = str(datetime.strptime(obj['pause_time'], '%H:%M:%S') - datetime.now())
-            y = str(timedelta(hours=int(obj['ttl'].split(':')[0]) - int(obj['pause_time'].split(':')[0]),
-                              minutes=int(obj['ttl'].split(':')[1]) - int(obj['pause_time'].split(':')[1]),
-                              seconds=int(obj['ttl'].split(':')[2][:2]) - int(obj['pause_time'].split(':')[2][:2])))
-            change[0] += int(y.split(':')[0])
-            change[1] += int(y.split(':')[1])
-            change[2] += int(y.split(':')[2])
-            # print(change)
-
-        return change
-
-    try:
-        value = Time.objects.get(login_date=date.today())
-        context = test(value.total_time)
-        log_time = f'{context[0]}:{context[1]}:{context[2]}'
-        value.total_time = log_time
-        value.save()
-    except Time.DoesNotExist:
-        value = Time.objects.create(login_date=date.today())
-        context = test('00:00:00')
-        log_time = f'{context[0]}:{context[1]}:{context[2]}'
-        value.total_time = log_time
-        value.save()
-    # value = Time.objects.get_or_create(login_date=date.today())
-    # value.
-
-    # context = list(Logs.objects.values('log', 'log_date'))
-
-    return render(request, 'switches/logs.html', {'items': log_time})
+# def logs(request):
+#     global log_time
+#
+#     def test(val):
+#         change = []
+#         context_1 = Switches.objects.filter(state='start').values('time_to_end', 'ttl')
+#         data = Switches.objects.filter(state='start').values('id')
+#         context_2 = Switches.objects.filter(state='pause').values('pause_time', 'ttl')
+#         # print(context_1)
+#         for obj in context_1:
+#             print(obj['time_to_end'])
+#             change = [int(val.split(':')[0]), int(val.split(':')[1]), int(val.split(':')[2])]
+#             x = str(obj['time_to_end'] - datetime.now())
+#             y = str(timedelta(hours=int(obj['ttl'].split(':')[0]) - int(x.split(':')[0]),
+#                               minutes=int(obj['ttl'].split(':')[1]) - int(x.split(':')[1]),
+#                               seconds=int(obj['ttl'].split(':')[2][:2]) - int(x.split(':')[2][:2])))
+#             change[0] += int(y.split(':')[0])
+#             change[1] += int(y.split(':')[1])
+#             change[2] += int(y.split(':')[2])
+#
+#         for obj in context_2:
+#             change = [int(val.split(':')[0]), int(val.split(':')[1]), int(val.split(':')[2])]
+#             # x = str(datetime.strptime(obj['pause_time'], '%H:%M:%S') - datetime.now())
+#             y = str(timedelta(hours=int(obj['ttl'].split(':')[0]) - int(obj['pause_time'].split(':')[0]),
+#                               minutes=int(obj['ttl'].split(':')[1]) - int(obj['pause_time'].split(':')[1]),
+#                               seconds=int(obj['ttl'].split(':')[2][:2]) - int(obj['pause_time'].split(':')[2][:2])))
+#             change[0] += int(y.split(':')[0])
+#             change[1] += int(y.split(':')[1])
+#             change[2] += int(y.split(':')[2])
+#             # print(change)
+#
+#         return change
+#
+#     try:
+#         value = Time.objects.get(login_date=date.today())
+#         context = test(value.total_time)
+#         log_time = f'{context[0]}:{context[1]}:{context[2]}'
+#         value.total_time = log_time
+#         value.save()
+#     except Time.DoesNotExist:
+#         value = Time.objects.create(login_date=date.today())
+#         context = test('00:00:00')
+#         log_time = f'{context[0]}:{context[1]}:{context[2]}'
+#         value.total_time = log_time
+#         value.save()
+#     # value = Time.objects.get_or_create(login_date=date.today())
+#     # value.
+#
+#     # context = list(Logs.objects.values('log', 'log_date'))
+#
+#     return render(request, 'switches/logs.html', {'items': log_time})
 
 
 def start(request):
@@ -191,6 +200,11 @@ def start(request):
     if request.method == "POST":
         if request.POST.get('start'):
             obj = Switches.objects.get(id=int(request.POST.get('station_no')))
+
+            x = Logs.objects.create(
+                log=f"Station {request.POST.get('station_no')} started for {request.POST.get('name')} for "
+                    f"{request.POST.get('hours')} hour(s) {request.POST.get('mins')} minutes")
+            x.save()
 
             hours = int(request.POST.get('hours'))
             mins = int(request.POST.get('mins'))
@@ -206,3 +220,9 @@ def start(request):
         # print(context)
 
     return render(request, 'switches/start.html', {'items': context, 'names': names})
+
+
+def logs(request):
+    context = list(Logs.objects.values('log', 'log_date'))
+
+    return render(request, 'switches/logs.html', {'items': context})
